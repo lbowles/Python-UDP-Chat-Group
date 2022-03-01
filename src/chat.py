@@ -40,7 +40,7 @@ def RunClient(serverIP):
             break
         elif data=='':
             continue
-        data = '<'+username+'>' + '|'+ data
+        data = '<'+username+'>' + ' | '+ data
         s.sendto(data.encode('utf-8'),server)
     s.sendto(data.encode('utf-8'),server)
     s.close()
@@ -74,11 +74,16 @@ def RunServer():
                 clients.add(addr)
                 continue
             clients.add(addr)
+            if data :
+                for x in clients:
+                    if x==addr:
+                        message = "<<-- Message Delivered -->>"
+                        s.sendto(message.encode('utf-8'),x)    
             data = data.decode('utf-8')
             if data.endswith('Exit'):
                 clients.remove(addr)
                 continue
-            print(str(addr)+data)
+            print(data)
             for c in clients:
                 if c!=addr:
                     s.sendto(data.encode('utf-8'),c)
