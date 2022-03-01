@@ -7,7 +7,7 @@ import os
 
 
 #Client
-#Run chat.py <ip address of server>
+#Run chat.py <server ip>
 def ReceiveData(sock):
     while True:
         try:
@@ -18,27 +18,29 @@ def ReceiveData(sock):
 
 def RunClient(serverIP):
     host = socket.gethostbyname(socket.gethostname())
-    port = random.randint(6000,10000)
-    serverPort = int(input("Input the port of server: "))
-    print("Client IP = "+str(host))
-    print("Port = "+str(port))
+    clientPort = random.randint(6000,10000)
+    serverPort = int(input("Enter server port: "))
+    print('Client IP = '+str(host))
+    print('Client Port = '+str(clientPort))
+    print("Welcome to the chatroom, type 'Exit' to exit")
+    print("")
     server = (str(serverIP),serverPort)
     s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-    s.bind((host,port))
+    s.bind((host,clientPort))
 
-    userName = input('Ener your username: ')
-    if userName == '':
-        userName = 'GuestUser'+str(random.randint(1,1000))
-        print('Your guest username is: '+userName)
-    s.sendto(userName.encode('utf-8'),server)
+    username = input('Enter your username: ')
+    if username == '':
+        username = 'Guest'+str(random.randint(1,1000))
+        print('Your name is:'+username)
+    s.sendto(username.encode('utf-8'),server)
     threading.Thread(target=ReceiveData,args=(s,)).start()
     while True:
         data = input()
-        if data == 'qqq':
+        if data == 'Exit':
             break
         elif data=='':
             continue
-        data = '['+userName+']' + '->'+ data
+        data = '<'+username+'>' + '|'+ data
         s.sendto(data.encode('utf-8'),server)
     s.sendto(data.encode('utf-8'),server)
     s.close()
@@ -47,7 +49,7 @@ def RunClient(serverIP):
 
 
 #Server
-#Run chat.py
+# Run chat.py 
 def RecvData(sock,recvPackets):
     while True:
         data,addr = sock.recvfrom(1024)
@@ -55,14 +57,13 @@ def RecvData(sock,recvPackets):
 
 def RunServer():
     host = socket.gethostbyname(socket.gethostname())
-    port = int(input("Input server port: "))
+    serverPort = int(input("Enter server port: "))
     print('Server hosting on IP-> '+str(host))
     s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-    s.bind((host,port))
+    s.bind((host,serverPort))
     clients = set()
     recvPackets = queue.Queue()
-
-    print('Server Running...')
+    print('The server is running')
 
     threading.Thread(target=RecvData,args=(s,recvPackets)).start()
 
@@ -74,7 +75,7 @@ def RunServer():
                 continue
             clients.add(addr)
             data = data.decode('utf-8')
-            if data.endswith('qqq'):
+            if data.endswith('Exit'):
                 clients.remove(addr)
                 continue
             print(str(addr)+data)
@@ -82,5 +83,9 @@ def RunServer():
                 if c!=addr:
                     s.sendto(data.encode('utf-8'),c)
     s.close()
-#Server
 
+if __name__ == '__main__':
+    if len(sys.argv)==1:
+        RunServer()
+    elif len(sys.argv)==2:
+        RunClient(sys.argv[1])
