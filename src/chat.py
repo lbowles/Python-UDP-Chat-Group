@@ -7,6 +7,7 @@ import queue
 import sys
 import random
 import os
+import time
 
 #older version
 #TODO: add comments
@@ -36,15 +37,19 @@ def RunClient(serverIP):
     server = (str(serverIP),serverPort)
     s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
     s.bind((host,port))
-
     #username input
-    userName = input('Ener your username: ')
+    userName = input('Enter your username: ')
     if userName == '':
         userName = 'GuestUser'+str(random.randint(1,1000))
         print('Your guest username is: '+userName)
     #connection and starting new thread to server
     s.sendto(userName.encode('utf-8'),server)
     threading.Thread(target=ReceiveData,args=(s,)).start()
+    #sends first connection confirmation message
+    firstMessage = str("FIRST1923")
+        #sending data to server
+    s.sendto(firstMessage.encode('utf-8'),server)
+
     #checking if user wants to exit chatroom
     while True:
         data = input()
@@ -52,7 +57,10 @@ def RunClient(serverIP):
             break
         elif data=='':
             continue
-        data = '['+userName+']' + '->'+ data
+        t = time.localtime()
+        current_time = time.strftime("%H:%M:%S", t)
+        data = '['+current_time+", "+userName+']' + '-> '+ data
+        #sending data to server
         s.sendto(data.encode('utf-8'),server)
     #sending message to server
     s.sendto(data.encode('utf-8'),server)
@@ -99,47 +107,56 @@ def RunServer():
             clients.add(addr)
             data = data.decode('utf-8')
             
-            #stores messages for when a client is disconnected 
-            j=0
-            while j<len(offlineClients) :
-                if isinstance(offlineClients[j][0], str):
-                    k=0
-                    while isinstance(offlineClients[j][k],str):  
-                        k=k+1
-                    offlineClients[j][k] = data
-                j=j+1
+            if data.endswith('FIRST1923'):
+                arrTempMsg = ""
+                for ip in clients:
+                    arrTempMsg= arrTempMsg + ip[0]+" "
+                message="Connected Clients ["+arrTempMsg+"]"
+                s.sendto(message.encode('utf-8'),addr) 
+            else :
+                
+                #stores messages for when a client is disconnected 
+                j=0
+                while j<len(offlineClients) :
+                    if isinstance(offlineClients[j][0], str):
+                        k=0
+                        while isinstance(offlineClients[j][k],str):  
+                            k=k+1
+                        offlineClients[j][k] = data
+                    j=j+1
 
-            #sends client any messages that it missed
-            if offlineClients :
-                x=0
-                while x<len(offlineClients) :
-                    if addr[0]==offlineClients[x][0]:
-                        print("MISSED MESSAGES")
-                        z = 1 
-                        while isinstance(offlineClients[x][z], str):
-                            message = (offlineClients[x][z])
-                            s.sendto(message.encode('utf-8'),addr)
-                            z=z+1
-                        offlineClients[x][0] = 0
-                    x=x+1
+                #sends client any messages that it missed
+                print(offlineClients)
+                if offlineClients :
+                    x=0
+                    while x<len(offlineClients) :
+                        if addr[0]==offlineClients[x][0]:
+                            print("MISSED MESSAGES")
+                            z = 1 
+                            while isinstance(offlineClients[x][z], str):
+                                message = (offlineClients[x][z])
+                                s.sendto(message.encode('utf-8'),addr)
+                                z=z+1
+                            offlineClients[x][0] = 0
+                        x=x+1
 
-            #disconnects client
-            if data.endswith('Exit'):
-                clients.remove(addr)
-                offlineClients[arrCount][0] =addr[0]
-                arrCount=arrCount+1
-                continue
-            #sends client confirmation of delivered messages
-            if data :
-                for x in clients:
-                    if x==addr:
-                        message = "<<-- Message Delivered -->>"
-                        s.sendto(message.encode('utf-8'),x)
-            print(str(addr)+data)
-            #sends incoming message to all connected clients
-            for c in clients:
-                if c!=addr:
-                    s.sendto(data.encode('utf-8'),c)
+                #disconnects client
+                if data.endswith('Exit'):
+                    clients.remove(addr)
+                    offlineClients[arrCount][0] =addr[0]
+                    arrCount=arrCount+1
+                    continue
+                #sends client confirmation of delivered messages
+                if data :
+                    for x in clients:
+                        if x==addr:
+                            message = "<<-- Message Delivered -->>"
+                            s.sendto(message.encode('utf-8'),x)
+                print(str(addr)+data)
+                #sends incoming message to all connected clients
+                for c in clients:
+                    if c!=addr:
+                        s.sendto(data.encode('utf-8'),c)
     s.close()
 #Server
 
