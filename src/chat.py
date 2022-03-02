@@ -123,10 +123,10 @@ def RunServer():
                         while isinstance(offlineClients[j][k],str):  
                             k=k+1
                         offlineClients[j][k] = data
+                        print("collecting missed msg")
                     j=j+1
 
                 #sends client any messages that it missed
-                print(offlineClients)
                 if offlineClients :
                     x=0
                     while x<len(offlineClients) :
