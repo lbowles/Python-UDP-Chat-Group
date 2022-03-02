@@ -95,6 +95,7 @@ def RunServer():
     w, h = 500, 500
     arrCount = 0
     offlineClients = [[0 for x in range(w)] for y in range(h)]
+    allMessages = []
 
     #constantly checks for new messages from clients
     while True:
@@ -107,38 +108,31 @@ def RunServer():
             clients.add(addr)
             data = data.decode('utf-8')
             
+            print(allMessages)
+            #checks to see if server is getting the first connection msg from the client
             if data.endswith('FIRST1923'):
                 arrTempMsg = ""
                 for ip in clients:
                     arrTempMsg= arrTempMsg + ip[0]+" "
                 message="Connected Clients ["+arrTempMsg+"]"
-                s.sendto(message.encode('utf-8'),addr) 
+                #if client has just connected server sends all previous messages in the chat
+                for line in allMessages: 
+                    missedMessage = str("|passed message| "+line)
+                    s.sendto(missedMessage.encode('utf-8'),addr) 
+                s.sendto(message.encode('utf-8'),addr)
+                clients.add(addr) 
             else :
-                
-                #stores messages for when a client is disconnected 
+                #storing all messges sent to server 
+                allMessages.append(data)
+                #stores messages for a specific when the client is disconnected 
                 j=0
                 while j<len(offlineClients) :
                     if isinstance(offlineClients[j][0], str):
                         k=0
                         while isinstance(offlineClients[j][k],str):  
                             k=k+1
-                        offlineClients[j][k] = data
-                        print("collecting missed msg")
+                        offlineClients[j][k] = " |missed message| "+data
                     j=j+1
-
-                #sends client any messages that it missed
-                if offlineClients :
-                    x=0
-                    while x<len(offlineClients) :
-                        if addr[0]==offlineClients[x][0]:
-                            print("MISSED MESSAGES")
-                            z = 1 
-                            while isinstance(offlineClients[x][z], str):
-                                message = (offlineClients[x][z])
-                                s.sendto(message.encode('utf-8'),addr)
-                                z=z+1
-                            offlineClients[x][0] = 0
-                        x=x+1
 
                 #disconnects client
                 if data.endswith('Exit'):
@@ -156,7 +150,20 @@ def RunServer():
                 #sends incoming message to all connected clients
                 for c in clients:
                     if c!=addr:
-                        s.sendto(data.encode('utf-8'),c)
+                        s.sendto(data.encode('utf-8'),c) 
+            #sends client any messages that it missed
+            if offlineClients :
+                x=0
+                while x<len(offlineClients) :
+                    if addr[0]==offlineClients[x][0]:
+                        print("MISSED MESSAGES")
+                        z = 1 
+                        while isinstance(offlineClients[x][z], str):
+                            message = (offlineClients[x][z])
+                            s.sendto(message.encode('utf-8'),addr)
+                            z=z+1
+                        offlineClients[x][0] = 0
+                    x=x+1
     s.close()
 #Server
 
