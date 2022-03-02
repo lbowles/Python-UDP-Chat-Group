@@ -108,7 +108,6 @@ def RunServer():
             clients.add(addr)
             data = data.decode('utf-8')
             
-            print(allMessages)
             #checks to see if server is getting the first connection msg from the client
             if data.endswith('FIRST1923'):
                 arrTempMsg = ""
@@ -131,7 +130,7 @@ def RunServer():
                         k=0
                         while isinstance(offlineClients[j][k],str):  
                             k=k+1
-                        offlineClients[j][k] = " |missed message| "+data
+                        offlineClients[j][k] = "|missed message| "+data
                     j=j+1
 
                 #disconnects client
