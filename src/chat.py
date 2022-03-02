@@ -130,7 +130,7 @@ def RunServer():
                         k=0
                         while isinstance(offlineClients[j][k],str):  
                             k=k+1
-                        offlineClients[j][k] = "|missed message| "+data
+                        offlineClients[j][k] = "|recently missed message| "+data
                     j=j+1
 
                 #disconnects client
