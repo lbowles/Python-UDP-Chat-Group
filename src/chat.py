@@ -44,7 +44,7 @@ def RunClient(serverIP):
     #sends first connection confirmation message
     firstMessage = str("FIRST1923")
         #sending data to server
-    s.sendto(firstMessage.encode('utf-8'),server)
+    s.sendto(str(cryptocode.encrypt(str(firstMessage),"mypassword")).encode('utf-8'),server)
 
     #checking if user wants to exit chatroom
     while True:
@@ -102,6 +102,8 @@ def RunServer():
                 clients.add(addr)
                 continue
             clients.add(addr)
+            print(data.decode('utf-8'))
+            print(data)
             data = cryptocode.decrypt(data.decode('utf-8'),"mypassword")
             print(data)
 
