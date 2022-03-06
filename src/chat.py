@@ -1,4 +1,3 @@
-
 from audioop import add
 from ctypes import addressof
 import socket
@@ -8,11 +7,22 @@ import sys
 import random
 import os
 import time
+from cryptography.fernet import Fernet
 
 #older version
 #TODO: add comments
 #TODO: when client exits, store all the messages and then when they rejoin display them
 # when disconnected store message in array 
+
+key = Fernet.generate_key()
+f = Fernet(key)
+def encryption (message):
+    encMessage = f.encrypt(message.encode())
+    return encMessage.decode()
+
+def decryption (message):
+    decMessage = f.decrypt(message)
+    return decMessage
 
 #Client
 #Run chat.py <ip address of server>
@@ -59,7 +69,7 @@ def RunClient(serverIP):
             continue
         t = time.localtime()
         current_time = time.strftime("%H:%M:%S", t)
-        data = '['+current_time+", "+userName+']' + '-> '+ data
+        data = encryption('['+current_time+", "+userName+']' + '-> '+ data)
         #sending data to server
         s.sendto(data.encode('utf-8'),server)
     #sending message to server
@@ -106,7 +116,7 @@ def RunServer():
                 clients.add(addr)
                 continue
             clients.add(addr)
-            data = data.decode('utf-8')
+            data = decryption(data).decode('utf-8')
             
             #checks to see if server is getting the first connection msg from the client
             if data.endswith('FIRST1923'):
@@ -171,4 +181,3 @@ if __name__ == '__main__':
         RunServer()
     elif len(sys.argv)==2:
         RunClient(sys.argv[1])
-
