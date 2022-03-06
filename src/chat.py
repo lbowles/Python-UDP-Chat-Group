@@ -9,11 +9,6 @@ import random
 import os
 import time
 
-#older version
-#TODO: add comments
-#TODO: when client exits, store all the messages and then when they rejoin display them
-# when disconnected store message in array 
-
 #Client
 #Run chat.py <ip address of server>
 def ReceiveData(sock):
