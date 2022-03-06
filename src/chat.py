@@ -1,6 +1,7 @@
 
 from audioop import add
 from ctypes import addressof
+import cryptocode
 import socket
 import threading
 import queue
@@ -38,7 +39,7 @@ def RunClient(serverIP):
         userName = 'GuestUser'+str(random.randint(1,1000))
         print('Your guest username is: '+userName)
     #connection and starting new thread to server
-    s.sendto(userName.encode('utf-8'),server)
+    s.sendto(str(cryptocode.encrypt(str(userName),"mypassword")).encode('utf-8'),server)
     threading.Thread(target=ReceiveData,args=(s,)).start()
     #sends first connection confirmation message
     firstMessage = str("FIRST1923")
@@ -101,7 +102,9 @@ def RunServer():
                 clients.add(addr)
                 continue
             clients.add(addr)
-            data = data.decode('utf-8')
+            data = cryptocode.decrypt(data.decode('utf-8'),"mypassword")
+            print(data)
+
             
             #checks to see if server is getting the first connection msg from the client
             if data.endswith('FIRST1923'):
