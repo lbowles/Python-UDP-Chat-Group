@@ -12,6 +12,8 @@ import time
 
 key="$3928b18!j3"
 
+#pip install cryptocode 
+
 #Client
 #Run chat.py <ip address of server>
 
@@ -105,7 +107,8 @@ def RunServer():
                 clients.add(addr)
                 continue
             clients.add(addr)
-            data = cryptocode.decrypt(data.decode('utf-8'),key)
+            data = str(cryptocode.decrypt(data.decode('utf-8'),key))
+            print("decrypt: "+data)
  
             #checks to see if server is getting the first connection msg from the client
             if data.endswith('FIRST1923'):
