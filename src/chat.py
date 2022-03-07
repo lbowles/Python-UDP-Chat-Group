@@ -1,5 +1,3 @@
-from audioop import add
-from ctypes import addressof
 import cryptocode
 import socket
 import threading
@@ -9,13 +7,18 @@ import random
 import os
 import time
 
+#REQUIREMENTS 
+#RUN: pip install -r requirements.txt
+
+key="#han2b@3k!kws03sa1"
+
 #Client
 #Run chat.py <ip address of server>
 def ReceiveData(sock):
     while True:
         try:
             data,addr = sock.recvfrom(1024)
-            print(cryptocode.decrypt(data.decode(),"mypassword"))
+            print(cryptocode.decrypt(data.decode(),key))
         except:
             pass
 
@@ -38,12 +41,12 @@ def RunClient(serverIP):
         userName = 'GuestUser'+str(random.randint(1,1000))
         print('Your guest username is: '+userName)
     #connection and starting new thread to server
-    s.sendto(str(cryptocode.encrypt(str(userName),"mypassword")).encode(),server)
+    s.sendto(str(cryptocode.encrypt(str(userName),key)).encode(),server)
     threading.Thread(target=ReceiveData,args=(s,)).start()
     #sends first connection confirmation message
     firstMessage = str("FIRST1923")
         #sending data to server
-    s.sendto(str(cryptocode.encrypt(str(firstMessage),"mypassword")).encode(),server)
+    s.sendto(str(cryptocode.encrypt(str(firstMessage),key)).encode(),server)
 
     #checking if user wants to exit chatroom
     while True:
@@ -56,9 +59,9 @@ def RunClient(serverIP):
         current_time = time.strftime("%H:%M:%S", t)
         data = '['+current_time+", "+userName+']' + '-> '+ data
         #sending data to server
-        s.sendto(str(cryptocode.encrypt(str(data),"mypassword")).encode(),server)
+        s.sendto(str(cryptocode.encrypt(str(data),key)).encode(),server)
     #sending message to server
-    s.sendto(str(cryptocode.encrypt(str(data),"mypassword")).encode(),server)
+    s.sendto(str(cryptocode.encrypt(str(data),key)).encode(),server)
     s.close()
     os._exit(1)
 
@@ -87,7 +90,7 @@ def RunServer():
 
     #creates new thread for every client connection
     threading.Thread(target=RecvData,args=(s,recvPackets)).start()
-    w, h = 500, 500
+    w, h = 1000, 1000
     arrCount = 0
     offlineClients = [[0 for x in range(w)] for y in range(h)]
     allMessages = []
@@ -103,7 +106,7 @@ def RunServer():
             clients.add(addr)
             print(data.decode())
             print(data)
-            data = str(cryptocode.decrypt(data.decode(),"mypassword"))
+            data = str(cryptocode.decrypt(data.decode(),key))
             print(data)
 
             
@@ -116,8 +119,8 @@ def RunServer():
                 #if client has just connected server sends all previous messages in the chat
                 for line in allMessages: 
                     missedMessage = str("|passed message| "+line)
-                    s.sendto(str(cryptocode.encrypt(str(missedMessage),"mypassword")).encode(),addr) 
-                s.sendto(str(cryptocode.encrypt(str(message),"mypassword")).encode(),addr)
+                    s.sendto(str(cryptocode.encrypt(str(missedMessage),key)).encode(),addr) 
+                s.sendto(str(cryptocode.encrypt(str(message),key)).encode(),addr)
                 clients.add(addr) 
             else :
                 #storing all messges sent to server 
@@ -143,12 +146,12 @@ def RunServer():
                     for x in clients:
                         if x==addr:
                             message = "<<-- Message Delivered -->>"
-                            s.sendto(str(cryptocode.encrypt(str(message),"mypassword")).encode(),x)
+                            s.sendto(str(cryptocode.encrypt(str(message),key)).encode(),x)
                 print(str(addr)+data)
                 #sends incoming message to all connected clients
                 for c in clients:
                     if c!=addr:
-                        s.sendto(str(cryptocode.encrypt(str(data),"mypassword")).encode(),c) 
+                        s.sendto(str(cryptocode.encrypt(str(data),key)).encode(),c) 
             #sends client any messages that it missed
             if offlineClients :
                 x=0
@@ -158,12 +161,11 @@ def RunServer():
                         z = 1 
                         while isinstance(offlineClients[x][z], str):
                             message = (offlineClients[x][z])
-                            s.sendto(str(cryptocode.encrypt(str(message),"mypassword")).encode(),addr)
+                            s.sendto(str(cryptocode.encrypt(str(message),key)).encode(),addr)
                             z=z+1
                         offlineClients[x][0] = 0
                     x=x+1
     s.close()
-#Server
 
 if __name__ == '__main__':
     if len(sys.argv)==1:
