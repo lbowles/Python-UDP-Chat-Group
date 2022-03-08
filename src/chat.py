@@ -10,7 +10,6 @@ import time
 #REQUIREMENTS 
 #RUN: pip install -r requirements.txt
 
-key=""
 
 #Client
 #Run chat.py <ip address of server>
@@ -27,7 +26,7 @@ def RunClient(serverIP):
     host = socket.gethostbyname(socket.gethostname())
     port = random.randint(6000,10000)
     serverPort = int(input("Input the port of server: "))
-    key = str(input("Enter the server password: "))
+    key = str(int(input("Enter the server password [Must be a number]: ")))
     print("Client IP = "+str(host))
     print("Client Port = "+str(port))
     print("Welcome to the chatroom, type 'Exit' to exit")
@@ -48,7 +47,6 @@ def RunClient(serverIP):
     firstMessage = str("FIRST1923")
         #sending data to server
     s.sendto(str(cryptocode.encrypt(str(firstMessage),key)).encode(),server)
-
     #checking if user wants to exit chatroom
     while True:
         data = input()
@@ -81,7 +79,7 @@ def RunServer():
     #server information
     host = socket.gethostbyname(socket.gethostname())
     port = int(input("Input server port: "))
-    key = str(input("Create the server password: "))
+    key = str(int(input("Create the server password [Must be a number]: ")))
     print('Server hosting on IP = '+str(host))
     #create and assign server socket
     s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
@@ -107,6 +105,7 @@ def RunServer():
                 continue
             clients.add(addr)
             data = str(cryptocode.decrypt(data.decode(),key))
+            print(key)
             
             #checks to see if server is getting the first connection msg from the client
             if data.endswith('FIRST1923'):
