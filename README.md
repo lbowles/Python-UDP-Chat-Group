@@ -25,4 +25,4 @@ To install the required dependencies run: pip install -r requirements.txt
 1. Username for each client
 2. Shows passed messges when a client joins the group chat
 3. Shows a clients recently missed messages
-4. Encrypted messages sent over UDP connection 
+4. Encrypted password protected messages sent over UDP connection 
