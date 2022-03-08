@@ -10,7 +10,7 @@ import time
 #REQUIREMENTS 
 #RUN: pip install -r requirements.txt
 
-key="#han2b@3k!kws03sa1"
+key=""
 
 #Client
 #Run chat.py <ip address of server>
@@ -27,6 +27,7 @@ def RunClient(serverIP):
     host = socket.gethostbyname(socket.gethostname())
     port = random.randint(6000,10000)
     serverPort = int(input("Input the port of server: "))
+    key = str(input("Enter the server password: "))
     print("Client IP = "+str(host))
     print("Client Port = "+str(port))
     print("Welcome to the chatroom, type 'Exit' to exit")
@@ -80,6 +81,7 @@ def RunServer():
     #server information
     host = socket.gethostbyname(socket.gethostname())
     port = int(input("Input server port: "))
+    key = str(input("Create the server password: "))
     print('Server hosting on IP = '+str(host))
     #create and assign server socket
     s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
