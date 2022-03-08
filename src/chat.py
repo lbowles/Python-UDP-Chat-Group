@@ -109,7 +109,6 @@ def RunServer():
                 continue
             clients.add(addr)
             data = str(cryptocode.decrypt(data.decode(),key))
-            print(key)
             
             #checks to see if server is getting the first connection msg from the client
             if data.endswith('FIRST1923'):
