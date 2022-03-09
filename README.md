@@ -1,6 +1,6 @@
 # About
 
-Python chat appliction working the the UDP protocol.
+Python chat appliction working on the UDP protocol.
 
 ## Requirments
 
